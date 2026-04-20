@@ -1,9 +1,7 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
+import co.edu.usbcali.ecommerceusb.Service.DocumentTypeService;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
-import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
-import co.edu.usbcali.ecommerceusb.model.DocumentType;
-import co.edu.usbcali.ecommerceusb.repository.DocumentTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +17,15 @@ import java.util.List;
 public class DocumentTypeController {
 
     @Autowired
-    private DocumentTypeRepository documentTypeRepository;
+    private DocumentTypeService documentTypeService;
 
     @GetMapping("/all")
     public List<DocumentTypeResponse> getAll() {
-
-        return DocumentTypeMapper.modelToDocumentTypeResponseList(
-                documentTypeRepository.findAll()
-        );
+        return documentTypeService.getDocumentTypes();
     }
-
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id){
-        DocumentType documentType= documentTypeRepository.getReferenceById(id);
-        DocumentTypeResponse documentTypeResponse=
-                DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
-        return new ResponseEntity<>(
-                documentTypeResponse,
-                HttpStatus.OK
-        );
+    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(documentTypeService.getDocumentTypeById(id), HttpStatus.OK);
     }
-
 }
