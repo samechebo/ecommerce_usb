@@ -36,4 +36,4 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
                                 String.format("Tipo de documento no encontrado con el id: %d", id)));
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
     }
-} 
+}

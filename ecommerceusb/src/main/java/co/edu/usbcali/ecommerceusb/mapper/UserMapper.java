@@ -1,7 +1,6 @@
 package co.edu.usbcali.ecommerceusb.mapper;
 
-import co.edu.usbcali.ecommerceusb.controller.UserResponse;
-import co.edu.usbcali.ecommerceusb.model.DocumentType;
+import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.model.User;
 
 import java.util.List;

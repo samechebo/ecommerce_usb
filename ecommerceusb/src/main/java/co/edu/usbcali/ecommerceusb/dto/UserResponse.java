@@ -1,4 +1,4 @@
-package co.edu.usbcali.ecommerceusb.controller;
+package co.edu.usbcali.ecommerceusb.dto;
 
 import lombok.Builder;
 import lombok.Getter;

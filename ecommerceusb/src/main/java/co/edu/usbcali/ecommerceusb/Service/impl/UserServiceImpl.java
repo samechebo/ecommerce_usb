@@ -2,7 +2,7 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 
 
 import co.edu.usbcali.ecommerceusb.Service.UserService;
-import co.edu.usbcali.ecommerceusb.controller.UserResponse;
+import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.mapper.UserMapper;
 import co.edu.usbcali.ecommerceusb.model.User;
 import co.edu.usbcali.ecommerceusb.repository.UserRepository;
