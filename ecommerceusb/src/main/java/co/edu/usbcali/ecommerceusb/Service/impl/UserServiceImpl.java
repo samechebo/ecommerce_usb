@@ -61,6 +61,12 @@ public class UserServiceImpl implements UserService {
 
         return UserMapper.modelToUserResponse(userByEmail);
     }
+
+    /**
+     * @param createUserRequest
+     * @return
+     * @throws Exception
+     */
     @Override
     public UserResponse createUser(CreateUserRequest createUserRequest) throws Exception {
         if(Objects.isNull(createUserRequest)){
@@ -102,16 +108,8 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByDocumentNumberAndDocumentTypeId(createUserRequest.getDocumentNumber(),createUserRequest.getDocumentTypeId())){
             throw new Exception("El documentNumber ya existe");
         }
-        User user = User.builder()
-                .fullName(createUserRequest.getFullName())
-                .phone(createUserRequest.getPhone())
-                .email(createUserRequest.getEmail())
-                .documentType(documentType)
-                .documentNumber(createUserRequest.getDocumentNumber())
-                .birthDate(LocalDate.parse(createUserRequest.getBirthDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .country(createUserRequest.getCountry())
-                .address(createUserRequest.getAddress())
-                .build();
+        User user = UserMapper.createUserRequestToUser(createUserRequest, documentType);
+
 
         user = userRepository.save(user);
         UserResponse userResponse = UserMapper.modelToUserResponse(user);
