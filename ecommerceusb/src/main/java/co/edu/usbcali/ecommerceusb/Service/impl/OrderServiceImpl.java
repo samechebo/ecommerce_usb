@@ -3,6 +3,7 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 import co.edu.usbcali.ecommerceusb.Service.OrderService;
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderRequest;
 import co.edu.usbcali.ecommerceusb.dto.OrderResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdateOrderRequest;
 import co.edu.usbcali.ecommerceusb.mapper.OrderMapper;
 import co.edu.usbcali.ecommerceusb.model.Order;
 import co.edu.usbcali.ecommerceusb.model.User;
@@ -11,6 +12,7 @@ import co.edu.usbcali.ecommerceusb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +61,41 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new Exception("Usuario no encontrado"));
 
         Order order = OrderMapper.createOrderRequestToOrder(request, user);
+        order = orderRepository.save(order);
+        return OrderMapper.modelToOrderResponse(order);
+    }
+    @Override
+    public OrderResponse updateOrder(Integer id, UpdateOrderRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto UpdateOrderRequest no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getStatus()) || request.getStatus().isBlank()) {
+            throw new Exception("El campo status no puede ser nulo.");
+        }
+
+        Order.OrderStatus orderStatus;
+        try {
+            orderStatus = Order.OrderStatus.valueOf(request.getStatus());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("El status debe ser: CREATED, PAID o CANCELLED.");
+        }
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Orden no encontrada con el id: %d", id)));
+
+        order.setStatus(orderStatus);
+
+        // Registrar timestamps según el nuevo estado
+        if (orderStatus == Order.OrderStatus.PAID) {
+            order.setPaidAt(OffsetDateTime.now());
+        } else if (orderStatus == Order.OrderStatus.CANCELLED) {
+            order.setCancelledAt(OffsetDateTime.now());
+        }
+
         order = orderRepository.save(order);
         return OrderMapper.modelToOrderResponse(order);
     }

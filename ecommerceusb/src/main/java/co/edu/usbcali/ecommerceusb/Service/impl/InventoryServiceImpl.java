@@ -11,6 +11,7 @@ import co.edu.usbcali.ecommerceusb.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +60,28 @@ public class InventoryServiceImpl implements InventoryService {
                 .orElseThrow(() -> new Exception("Producto no encontrado"));
 
         Inventory inventory = InventoryMapper.createInventoryRequestToInventory(request, product);
+        inventory = inventoryRepository.save(inventory);
+        return InventoryMapper.modelToInventoryResponse(inventory);
+    }
+    @Override
+    public InventoryResponse updateInventory(Integer id, CreateInventoryRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto CreateInventoryRequest no puede ser nulo.");
+        }
+        if (request.getStock() == null || request.getStock() < 0) {
+            throw new Exception("El campo stock no puede ser negativo.");
+        }
+
+        Inventory inventory = inventoryRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Inventario no encontrado con el id: %d", id)));
+
+        inventory.setStock(request.getStock());
+        inventory.setUpdatedAt(OffsetDateTime.now());
+
         inventory = inventoryRepository.save(inventory);
         return InventoryMapper.modelToInventoryResponse(inventory);
     }

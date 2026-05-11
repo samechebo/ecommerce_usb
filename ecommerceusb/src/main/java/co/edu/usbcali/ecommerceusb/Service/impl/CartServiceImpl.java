@@ -3,6 +3,7 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 import co.edu.usbcali.ecommerceusb.Service.CartService;
 import co.edu.usbcali.ecommerceusb.dto.CartResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateCartRequest;
 import co.edu.usbcali.ecommerceusb.mapper.CartMapper;
 import co.edu.usbcali.ecommerceusb.model.Cart;
 import co.edu.usbcali.ecommerceusb.model.User;
@@ -11,6 +12,7 @@ import co.edu.usbcali.ecommerceusb.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,4 +58,34 @@ public class CartServiceImpl implements CartService {
         cart = cartRepository.save(cart);
         return CartMapper.modelToCartResponse(cart);
     }
+    @Override
+    public CartResponse updateCart(Integer id, UpdateCartRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto UpdateCartRequest no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getStatus()) || request.getStatus().isBlank()) {
+            throw new Exception("El campo status no puede ser nulo.");
+        }
+
+        Cart.CartStatus cartStatus;
+        try {
+            cartStatus = Cart.CartStatus.valueOf(request.getStatus());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("El status debe ser: ACTIVE, CHECKED_OUT o ABANDONED.");
+        }
+
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Carrito no encontrado con el id: %d", id)));
+
+        cart.setStatus(cartStatus);
+        cart.setUpdatedAt(OffsetDateTime.now());
+
+        cart = cartRepository.save(cart);
+        return CartMapper.modelToCartResponse(cart);
+    }
+
 }

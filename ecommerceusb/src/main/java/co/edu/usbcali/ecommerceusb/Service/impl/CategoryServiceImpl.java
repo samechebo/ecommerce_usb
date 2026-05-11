@@ -62,4 +62,42 @@ public class CategoryServiceImpl implements CategoryService {
         category = categoryRepository.save(category);
         return CategoryMapper.modelToCategoryResponse(category);
     }
+    @Override
+    public CategoryResponse updateCategory(Integer id, CreateCategoryRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto CreateCategoryRequest no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getName()) || request.getName().isBlank()) {
+            throw new Exception("El campo name no puede ser nulo.");
+        }
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Categoría no encontrada con el id: %d", id)));
+
+        // Verificar nombre duplicado solo si cambió
+        if (!category.getName().equals(request.getName()) &&
+                categoryRepository.existsByName(request.getName())) {
+            throw new Exception("Ya existe una categoría con ese nombre.");
+        }
+
+        Category parent = null;
+        if (request.getParentId() != null) {
+            if (request.getParentId().equals(id)) {
+                throw new Exception("Una categoría no puede ser su propio padre.");
+            }
+            parent = categoryRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new Exception("Categoría padre no encontrada."));
+        }
+
+        category.setName(request.getName());
+        category.setParent(parent);
+
+        category = categoryRepository.save(category);
+        return CategoryMapper.modelToCategoryResponse(category);
+    }
+
 }

@@ -1,14 +1,12 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.Service.DocumentTypeService;
+import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,5 +25,18 @@ public class DocumentTypeController {
     @GetMapping("/{id}")
     public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) throws Exception {
         return new ResponseEntity<>(documentTypeService.getDocumentTypeById(id), HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<DocumentTypeResponse> create(
+            @RequestBody CreateDocumentTypeRequest request) throws Exception {
+        return new ResponseEntity<>(documentTypeService.createDocumentType(request), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DocumentTypeResponse> update(
+            @PathVariable Integer id,
+            @RequestBody CreateDocumentTypeRequest request) throws Exception {
+        return new ResponseEntity<>(documentTypeService.updateDocumentType(id, request), HttpStatus.OK);
     }
 }

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DocumentTypeRepository extends JpaRepository<DocumentType, Integer> {
+    boolean existsByCode(String code);
+    boolean existsByName(String name);
 }

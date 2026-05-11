@@ -31,4 +31,10 @@ public class ProductController {
     public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) throws Exception {
         return new ResponseEntity<>(productService.createProduct(request), HttpStatus.CREATED);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Integer id,
+            @RequestBody CreateProductRequest request) throws Exception {
+        return new ResponseEntity<>(productService.updateProduct(id, request), HttpStatus.OK);
+    }
 }

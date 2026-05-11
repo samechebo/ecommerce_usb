@@ -3,6 +3,7 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 import co.edu.usbcali.ecommerceusb.Service.InventoryMovementService;
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.mapper.InventoryMovementMapper;
 import co.edu.usbcali.ecommerceusb.model.InventoryMovement;
 import co.edu.usbcali.ecommerceusb.model.Order;
@@ -84,4 +85,28 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         im = inventoryMovementRepository.save(im);
         return InventoryMovementMapper.modelToResponse(im);
     }
+    @Override
+    public InventoryMovementResponse updateInventoryMovement(
+            Integer id, UpdateInventoryMovementRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto UpdateInventoryMovementRequest no puede ser nulo.");
+        }
+        if (request.getQty() == null || request.getQty() <= 0) {
+            throw new Exception("El campo qty debe ser mayor a 0.");
+        }
+
+        InventoryMovement im = inventoryMovementRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Movimiento de inventario no encontrado con el id: %d", id)));
+
+        im.setQty(request.getQty());
+
+        im = inventoryMovementRepository.save(im);
+        return InventoryMovementMapper.modelToResponse(im);
+    }
+
+
 }

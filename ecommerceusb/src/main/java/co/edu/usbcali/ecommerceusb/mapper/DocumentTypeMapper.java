@@ -1,8 +1,10 @@
 package co.edu.usbcali.ecommerceusb.mapper;
 
+import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class DocumentTypeMapper {
@@ -24,7 +26,13 @@ public class DocumentTypeMapper {
         return documentTypeResponseList*/
         return documentTypes.stream().map(DocumentTypeMapper::modelToDocumentTypeResponse).toList();
     }
-
+    public static DocumentType createDocumentTypeRequestToDocumentType(CreateDocumentTypeRequest request) {
+        return DocumentType.builder()
+                .code(request.getCode())
+                .name(request.getName())
+                .createdAt(OffsetDateTime.now())
+                .build();
+    }
 
 
 }

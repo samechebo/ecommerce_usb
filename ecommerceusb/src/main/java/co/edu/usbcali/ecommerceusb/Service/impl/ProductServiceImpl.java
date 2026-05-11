@@ -9,6 +9,7 @@ import co.edu.usbcali.ecommerceusb.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,6 +52,40 @@ public class ProductServiceImpl implements ProductService {
             throw new Exception("Ya existe un producto con ese nombre.");
         }
         Product product = ProductMapper.createProductRequestToProduct(request);
+        product = productRepository.save(product);
+        return ProductMapper.modelToProductResponse(product);
+    }
+    @Override
+    public ProductResponse updateProduct(Integer id, CreateProductRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto CreateProductRequest no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getName()) || request.getName().isBlank()) {
+            throw new Exception("El campo name no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getPrice()) || request.getPrice().doubleValue() <= 0) {
+            throw new Exception("El campo price debe ser mayor a 0.");
+        }
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Producto no encontrado con el id: %d", id)));
+
+        // Verificar nombre duplicado solo si cambió
+        if (!product.getName().equals(request.getName()) &&
+                productRepository.existsByName(request.getName())) {
+            throw new Exception("Ya existe un producto con ese nombre.");
+        }
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setAvailable(request.getAvailable() != null ? request.getAvailable() : product.getAvailable());
+        product.setUpdatedAt(OffsetDateTime.now());
+
         product = productRepository.save(product);
         return ProductMapper.modelToProductResponse(product);
     }

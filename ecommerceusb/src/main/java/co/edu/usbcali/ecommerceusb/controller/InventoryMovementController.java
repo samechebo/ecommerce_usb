@@ -3,6 +3,7 @@ package co.edu.usbcali.ecommerceusb.controller;
 import co.edu.usbcali.ecommerceusb.Service.InventoryMovementService;
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,4 +34,12 @@ public class InventoryMovementController {
         return new ResponseEntity<>(
                 inventoryMovementService.createInventoryMovement(request), HttpStatus.CREATED);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<InventoryMovementResponse> updateInventoryMovement(
+            @PathVariable Integer id,
+            @RequestBody UpdateInventoryMovementRequest request) throws Exception {
+        return new ResponseEntity<>(
+                inventoryMovementService.updateInventoryMovement(id, request), HttpStatus.OK);
+    }
+
 }

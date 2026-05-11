@@ -3,6 +3,7 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 
 import co.edu.usbcali.ecommerceusb.Service.UserService;
 import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.mapper.UserMapper;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
@@ -14,6 +15,7 @@ import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -115,5 +117,50 @@ public class UserServiceImpl implements UserService {
         UserResponse userResponse = UserMapper.modelToUserResponse(user);
         return userResponse;
     }
+    @Override
+    public UserResponse updateUser(Integer id, UpdateUserRequest request) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para actualizar");
+        }
+        if (Objects.isNull(request)) {
+            throw new Exception("El objeto UpdateUserRequest no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getFullName()) || request.getFullName().isBlank()) {
+            throw new Exception("El campo fullName no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getPhone()) || request.getPhone().isBlank()) {
+            throw new Exception("El campo phone no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getEmail()) || request.getEmail().isBlank()) {
+            throw new Exception("El campo email no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getCountry()) || request.getCountry().isBlank()) {
+            throw new Exception("El campo country no puede ser nulo.");
+        }
+        if (Objects.isNull(request.getAddress()) || request.getAddress().isBlank()) {
+            throw new Exception("El campo address no puede ser nulo.");
+        }
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Usuario no encontrado con el id: %d", id)));
+
+        // Verificar email duplicado solo si cambió
+        if (!user.getEmail().equals(request.getEmail()) &&
+                userRepository.existsByEmail(request.getEmail())) {
+            throw new Exception("El email ya existe.");
+        }
+
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        user.setEmail(request.getEmail());
+        user.setCountry(request.getCountry());
+        user.setAddress(request.getAddress());
+        user.setUpdatedAt(OffsetDateTime.now());
+
+        user = userRepository.save(user);
+        return UserMapper.modelToUserResponse(user);
+    }
+
 
 }
