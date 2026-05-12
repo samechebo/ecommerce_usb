@@ -5,5 +5,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class UpdatePaymentRequest {
-    private String status; // SUCCEEDED, FAILED
+    private String status;
 }

@@ -144,8 +144,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new Exception(
                         String.format("Usuario no encontrado con el id: %d", id)));
-
-        // Verificar email duplicado solo si cambió
         if (!user.getEmail().equals(request.getEmail()) &&
                 userRepository.existsByEmail(request.getEmail())) {
             throw new Exception("El email ya existe.");

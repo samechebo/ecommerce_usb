@@ -74,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new Exception(
                         String.format("Producto no encontrado con el id: %d", id)));
 
-        // Verificar nombre duplicado solo si cambió
+
         if (!product.getName().equals(request.getName()) &&
                 productRepository.existsByName(request.getName())) {
             throw new Exception("Ya existe un producto con ese nombre.");
