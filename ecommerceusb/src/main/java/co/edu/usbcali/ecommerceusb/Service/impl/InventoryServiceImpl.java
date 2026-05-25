@@ -85,4 +85,16 @@ public class InventoryServiceImpl implements InventoryService {
         inventory = inventoryRepository.save(inventory);
         return InventoryMapper.modelToInventoryResponse(inventory);
     }
+    @Override
+    public void deleteInventory(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para eliminar");
+        }
+        Inventory inventory = inventoryRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Inventario no encontrado con el id: %d", id)));
+
+        inventoryRepository.delete(inventory);
+    }
+
 }

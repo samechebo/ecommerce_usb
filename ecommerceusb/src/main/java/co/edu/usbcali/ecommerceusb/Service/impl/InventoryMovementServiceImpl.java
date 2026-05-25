@@ -107,6 +107,16 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         im = inventoryMovementRepository.save(im);
         return InventoryMovementMapper.modelToResponse(im);
     }
+    @Override
+    public void deleteInventoryMovement(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para eliminar");
+        }
+        InventoryMovement inventoryMovement = inventoryMovementRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Movimiento de inventario no encontrado con el id: %d", id)));
 
+        inventoryMovementRepository.delete(inventoryMovement);
+    }
 
 }

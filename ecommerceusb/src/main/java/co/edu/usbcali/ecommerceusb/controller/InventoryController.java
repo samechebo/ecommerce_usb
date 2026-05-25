@@ -37,4 +37,9 @@ public class InventoryController {
             @RequestBody CreateInventoryRequest request) throws Exception {
         return new ResponseEntity<>(inventoryService.updateInventory(id, request), HttpStatus.OK);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+        inventoryService.deleteInventory(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

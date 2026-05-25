@@ -9,4 +9,5 @@ public interface ProductCategoryService {
     List<ProductCategoryResponse> getProductCategories();
     ProductCategoryResponse getProductCategoryById(Integer id) throws Exception;
     ProductCategoryResponse createProductCategory(CreateProductCategoryRequest request) throws Exception;
+    void deleteProductCategory(Integer id) throws Exception;
 }

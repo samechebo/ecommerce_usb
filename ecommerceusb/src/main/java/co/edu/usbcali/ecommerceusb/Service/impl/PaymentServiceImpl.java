@@ -94,4 +94,15 @@ public class PaymentServiceImpl implements PaymentService {
         payment = paymentRepository.save(payment);
         return PaymentMapper.modelToPaymentResponse(payment);
     }
+    @Override
+    public void deletePayment(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para eliminar");
+        }
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("Pago no encontrado con el id: %d", id)));
+
+        paymentRepository.delete(payment);
+    }
 }

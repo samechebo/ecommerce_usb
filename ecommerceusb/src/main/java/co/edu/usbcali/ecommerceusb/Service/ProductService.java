@@ -10,5 +10,5 @@ public interface ProductService {
     ProductResponse getProductById(Integer id) throws Exception;
     ProductResponse createProduct(CreateProductRequest request) throws Exception;
     ProductResponse updateProduct(Integer id, CreateProductRequest request) throws Exception;
-
+    void deleteProduct(Integer id) throws Exception;
 }

@@ -11,4 +11,5 @@ public interface PaymentService {
     PaymentResponse getPaymentById(Integer id) throws Exception;
     PaymentResponse createPayment(CreatePaymentRequest request) throws Exception;
     PaymentResponse updatePayment(Integer id, UpdatePaymentRequest request) throws Exception;
+    void deletePayment(Integer id) throws Exception;
 }

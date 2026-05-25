@@ -10,4 +10,5 @@ public interface CategoryService {
     CategoryResponse getCategoryById(Integer id) throws Exception;
     CategoryResponse createCategory(CreateCategoryRequest request) throws Exception;
     CategoryResponse updateCategory(Integer id, CreateCategoryRequest request) throws Exception; // NUEVO
+    void deleteCategory(Integer id) throws Exception;
 }

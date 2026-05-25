@@ -32,4 +32,9 @@ public class ProductCategoryController {
             @RequestBody CreateProductCategoryRequest request) throws Exception {
         return new ResponseEntity<>(productCategoryService.createProductCategory(request), HttpStatus.CREATED);
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+        productCategoryService.deleteProductCategory(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

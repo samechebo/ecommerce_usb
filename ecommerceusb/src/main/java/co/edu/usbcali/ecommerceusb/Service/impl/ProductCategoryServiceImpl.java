@@ -69,4 +69,15 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         pc = productCategoryRepository.save(pc);
         return ProductCategoryMapper.modelToProductCategoryResponse(pc);
     }
+    @Override
+    public void deleteProductCategory(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("Debe ingresar el id para eliminar");
+        }
+        ProductCategory productCategory = productCategoryRepository.findById(id)
+                .orElseThrow(() -> new Exception(
+                        String.format("ProductCategory no encontrado con el id: %d", id)));
+
+        productCategoryRepository.delete(productCategory);
+    }
 }

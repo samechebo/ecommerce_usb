@@ -38,5 +38,9 @@ public class OrderController {
             @RequestBody UpdateOrderRequest request) throws Exception {
         return new ResponseEntity<>(orderService.updateOrder(id, request), HttpStatus.OK);
     }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+        orderService.deleteOrder(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

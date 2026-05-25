@@ -39,5 +39,9 @@ public class UserController {
             @RequestBody UpdateUserRequest request) throws Exception {
         return new ResponseEntity<>(userService.updateUser(id, request), HttpStatus.OK);
     }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

@@ -12,4 +12,6 @@ public interface OrderService {
     OrderResponse getOrderById(Integer id) throws Exception;
     OrderResponse createOrder(CreateOrderRequest request) throws Exception;
     OrderResponse updateOrder(Integer id, UpdateOrderRequest request) throws Exception;
+    void deleteOrder(Integer id) throws Exception;
 }
+

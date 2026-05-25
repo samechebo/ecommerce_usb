@@ -10,4 +10,5 @@ public interface DocumentTypeService {
     DocumentTypeResponse getDocumentTypeById(Integer id) throws Exception;
     DocumentTypeResponse createDocumentType(CreateDocumentTypeRequest request) throws Exception;
     DocumentTypeResponse updateDocumentType(Integer id, CreateDocumentTypeRequest request) throws Exception;
+    void deleteDocumentType(Integer id) throws Exception;
 }

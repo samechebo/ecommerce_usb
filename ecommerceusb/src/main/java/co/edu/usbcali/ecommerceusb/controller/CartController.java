@@ -38,5 +38,9 @@ public class CartController {
             @RequestBody UpdateCartRequest request) throws Exception {
         return new ResponseEntity<>(cartService.updateCart(id, request), HttpStatus.OK);
     }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+        cartService.deleteCart(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
