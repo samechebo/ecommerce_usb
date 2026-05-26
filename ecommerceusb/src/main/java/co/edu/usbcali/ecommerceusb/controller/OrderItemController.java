@@ -24,24 +24,25 @@ public class OrderItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderItemResponse> getById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<OrderItemResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(orderItemService.getOrderItemById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<OrderItemResponse> create(@RequestBody CreateOrderItemRequest request) throws Exception {
+    public ResponseEntity<OrderItemResponse> create(@RequestBody CreateOrderItemRequest request) {
         return new ResponseEntity<>(orderItemService.createOrderItem(request), HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<OrderItemResponse> updateOrderItem(
+    public ResponseEntity<OrderItemResponse> update(
             @PathVariable Integer id,
-            @RequestBody UpdateOrderItemRequest request) throws Exception {
+            @RequestBody UpdateOrderItemRequest request) {
         return new ResponseEntity<>(orderItemService.updateOrderItem(id, request), HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         orderItemService.deleteOrderItem(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 }

@@ -24,22 +24,24 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponse> getById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<PaymentResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(paymentService.getPaymentById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<PaymentResponse> create(@RequestBody CreatePaymentRequest request) throws Exception {
+    public ResponseEntity<PaymentResponse> create(@RequestBody CreatePaymentRequest request) {
         return new ResponseEntity<>(paymentService.createPayment(request), HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<PaymentResponse> updatePayment(
+    public ResponseEntity<PaymentResponse> update(
             @PathVariable Integer id,
-            @RequestBody UpdatePaymentRequest request) throws Exception {
+            @RequestBody UpdatePaymentRequest request) {
         return new ResponseEntity<>(paymentService.updatePayment(id, request), HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         paymentService.deletePayment(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

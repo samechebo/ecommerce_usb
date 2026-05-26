@@ -3,6 +3,9 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 import co.edu.usbcali.ecommerceusb.Service.ProductCategoryService;
 import co.edu.usbcali.ecommerceusb.dto.CreateProductCategoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.ProductCategoryResponse;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.InternalServerErrorException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.ProductCategoryMapper;
 import co.edu.usbcali.ecommerceusb.model.Category;
 import co.edu.usbcali.ecommerceusb.model.Product;
@@ -34,50 +37,56 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
-    public ProductCategoryResponse getProductCategoryById(Integer id) throws Exception {
+    public ProductCategoryResponse getProductCategoryById(Integer id) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
-        ProductCategory pc = productCategoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+        return productCategoryRepository.findById(id)
+                .map(ProductCategoryMapper::modelToProductCategoryResponse)
+                .orElseThrow(() -> new NotFoundException(
                         String.format("ProductCategory no encontrado con el id: %d", id)));
-        return ProductCategoryMapper.modelToProductCategoryResponse(pc);
     }
 
     @Override
-    public ProductCategoryResponse createProductCategory(CreateProductCategoryRequest request) throws Exception {
+    public ProductCategoryResponse createProductCategory(CreateProductCategoryRequest request) {
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto CreateProductCategoryRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto CreateProductCategoryRequest no puede ser nulo.");
         }
         if (request.getProductId() == null || request.getProductId() <= 0) {
-            throw new Exception("El campo productId debe ser mayor a 0.");
+            throw new BadRequestException("El campo productId debe ser mayor a 0.");
         }
         if (request.getCategoryId() == null || request.getCategoryId() <= 0) {
-            throw new Exception("El campo categoryId debe ser mayor a 0.");
+            throw new BadRequestException("El campo categoryId debe ser mayor a 0.");
         }
         if (productCategoryRepository.existsByProductIdAndCategoryId(
                 request.getProductId(), request.getCategoryId())) {
-            throw new Exception("Ya existe esa relación producto-categoría.");
+            throw new InternalServerErrorException("Ya existe esa relación producto-categoría.");
         }
-
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new Exception("Producto no encontrado"));
+                .orElseThrow(() -> new NotFoundException("Producto no encontrado"));
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new Exception("Categoría no encontrada"));
-
-        ProductCategory pc = ProductCategoryMapper.createRequestToProductCategory(product, category);
-        pc = productCategoryRepository.save(pc);
-        return ProductCategoryMapper.modelToProductCategoryResponse(pc);
-    }
-    @Override
-    public void deleteProductCategory(Integer id) throws Exception {
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para eliminar");
+                .orElseThrow(() -> new NotFoundException("Categoría no encontrada"));
+        try {
+            ProductCategory pc = ProductCategoryMapper.createRequestToProductCategory(product, category);
+            pc = productCategoryRepository.save(pc);
+            return ProductCategoryMapper.modelToProductCategoryResponse(pc);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al guardar la relación producto-categoría: " + e.getMessage());
         }
-        ProductCategory productCategory = productCategoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(
-                        String.format("ProductCategory no encontrado con el id: %d", id)));
+    }
 
-        productCategoryRepository.delete(productCategory);
+    @Override
+    public void deleteProductCategory(Integer id) {
+        if (id == null || id <= 0) {
+            throw new BadRequestException("Debe ingresar el id para eliminar");
+        }
+        ProductCategory pc = productCategoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("ProductCategory no encontrado con el id: %d", id)));
+        try {
+            productCategoryRepository.delete(pc);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al eliminar la relación producto-categoría: " + e.getMessage());
+        }
     }
 }

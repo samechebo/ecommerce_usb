@@ -23,17 +23,18 @@ public class ProductCategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductCategoryResponse> getById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<ProductCategoryResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(productCategoryService.getProductCategoryById(id), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<ProductCategoryResponse> create(
-            @RequestBody CreateProductCategoryRequest request) throws Exception {
+            @RequestBody CreateProductCategoryRequest request) {
         return new ResponseEntity<>(productCategoryService.createProductCategory(request), HttpStatus.CREATED);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         productCategoryService.deleteProductCategory(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

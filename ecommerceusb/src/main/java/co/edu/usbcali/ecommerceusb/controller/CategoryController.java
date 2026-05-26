@@ -23,22 +23,24 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<CategoryResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(categoryService.getCategoryById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CreateCategoryRequest request) throws Exception {
+    public ResponseEntity<CategoryResponse> create(@RequestBody CreateCategoryRequest request) {
         return new ResponseEntity<>(categoryService.createCategory(request), HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> updateCategory(
+    public ResponseEntity<CategoryResponse> update(
             @PathVariable Integer id,
-            @RequestBody CreateCategoryRequest request) throws Exception {
+            @RequestBody CreateCategoryRequest request) {
         return new ResponseEntity<>(categoryService.updateCategory(id, request), HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         categoryService.deleteCategory(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -23,24 +23,24 @@ public class DocumentTypeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(documentTypeService.getDocumentTypeById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<DocumentTypeResponse> create(
-            @RequestBody CreateDocumentTypeRequest request) throws Exception {
+    public ResponseEntity<DocumentTypeResponse> create(@RequestBody CreateDocumentTypeRequest request) {
         return new ResponseEntity<>(documentTypeService.createDocumentType(request), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DocumentTypeResponse> update(
             @PathVariable Integer id,
-            @RequestBody CreateDocumentTypeRequest request) throws Exception {
+            @RequestBody CreateDocumentTypeRequest request) {
         return new ResponseEntity<>(documentTypeService.updateDocumentType(id, request), HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         documentTypeService.deleteDocumentType(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

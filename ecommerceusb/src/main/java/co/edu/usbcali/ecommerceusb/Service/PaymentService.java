@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface PaymentService {
     List<PaymentResponse> getPayments();
-    PaymentResponse getPaymentById(Integer id) throws Exception;
-    PaymentResponse createPayment(CreatePaymentRequest request) throws Exception;
-    PaymentResponse updatePayment(Integer id, UpdatePaymentRequest request) throws Exception;
-    void deletePayment(Integer id) throws Exception;
+    PaymentResponse getPaymentById(Integer id);
+    PaymentResponse createPayment(CreatePaymentRequest request);
+    PaymentResponse updatePayment(Integer id, UpdatePaymentRequest request);
+    void deletePayment(Integer id);
 }

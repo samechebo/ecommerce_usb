@@ -3,6 +3,9 @@ package co.edu.usbcali.ecommerceusb.Service.impl;
 import co.edu.usbcali.ecommerceusb.Service.InventoryService;
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryResponse;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.InternalServerErrorException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.InventoryMapper;
 import co.edu.usbcali.ecommerceusb.model.Inventory;
 import co.edu.usbcali.ecommerceusb.model.Product;
@@ -31,70 +34,77 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public InventoryResponse getInventoryById(Integer id) throws Exception {
+    public InventoryResponse getInventoryById(Integer id) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
-        Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+        return inventoryRepository.findById(id)
+                .map(InventoryMapper::modelToInventoryResponse)
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Inventario no encontrado con el id: %d", id)));
-        return InventoryMapper.modelToInventoryResponse(inventory);
     }
 
     @Override
-    public InventoryResponse createInventory(CreateInventoryRequest request) throws Exception {
+    public InventoryResponse createInventory(CreateInventoryRequest request) {
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto CreateInventoryRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto CreateInventoryRequest no puede ser nulo.");
         }
         if (request.getProductId() == null || request.getProductId() <= 0) {
-            throw new Exception("El campo productId debe ser mayor a 0.");
+            throw new BadRequestException("El campo productId debe ser mayor a 0.");
         }
         if (request.getStock() == null || request.getStock() < 0) {
-            throw new Exception("El campo stock no puede ser negativo.");
+            throw new BadRequestException("El campo stock no puede ser negativo.");
         }
         if (inventoryRepository.existsByProductId(request.getProductId())) {
-            throw new Exception("Ya existe un inventario para ese producto.");
+            throw new InternalServerErrorException("Ya existe un inventario para ese producto.");
         }
-
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new Exception("Producto no encontrado"));
-
-        Inventory inventory = InventoryMapper.createInventoryRequestToInventory(request, product);
-        inventory = inventoryRepository.save(inventory);
-        return InventoryMapper.modelToInventoryResponse(inventory);
+                .orElseThrow(() -> new NotFoundException("Producto no encontrado"));
+        try {
+            Inventory inventory = InventoryMapper.createInventoryRequestToInventory(request, product);
+            inventory = inventoryRepository.save(inventory);
+            return InventoryMapper.modelToInventoryResponse(inventory);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al guardar el inventario: " + e.getMessage());
+        }
     }
+
     @Override
-    public InventoryResponse updateInventory(Integer id, CreateInventoryRequest request) throws Exception {
+    public InventoryResponse updateInventory(Integer id, CreateInventoryRequest request) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
+            throw new BadRequestException("Debe ingresar el id para actualizar");
         }
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto CreateInventoryRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto CreateInventoryRequest no puede ser nulo.");
         }
         if (request.getStock() == null || request.getStock() < 0) {
-            throw new Exception("El campo stock no puede ser negativo.");
+            throw new BadRequestException("El campo stock no puede ser negativo.");
         }
-
         Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Inventario no encontrado con el id: %d", id)));
-
-        inventory.setStock(request.getStock());
-        inventory.setUpdatedAt(OffsetDateTime.now());
-
-        inventory = inventoryRepository.save(inventory);
-        return InventoryMapper.modelToInventoryResponse(inventory);
+        try {
+            inventory.setStock(request.getStock());
+            inventory.setUpdatedAt(OffsetDateTime.now());
+            inventory = inventoryRepository.save(inventory);
+            return InventoryMapper.modelToInventoryResponse(inventory);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al actualizar el inventario: " + e.getMessage());
+        }
     }
+
     @Override
-    public void deleteInventory(Integer id) throws Exception {
+    public void deleteInventory(Integer id) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para eliminar");
+            throw new BadRequestException("Debe ingresar el id para eliminar");
         }
         Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Inventario no encontrado con el id: %d", id)));
-
-        inventoryRepository.delete(inventory);
+        try {
+            inventoryRepository.delete(inventory);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al eliminar el inventario: " + e.getMessage());
+        }
     }
-
 }

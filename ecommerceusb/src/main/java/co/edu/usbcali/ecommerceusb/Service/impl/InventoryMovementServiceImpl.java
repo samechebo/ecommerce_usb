@@ -4,6 +4,9 @@ import co.edu.usbcali.ecommerceusb.Service.InventoryMovementService;
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.InternalServerErrorException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.InventoryMovementMapper;
 import co.edu.usbcali.ecommerceusb.model.InventoryMovement;
 import co.edu.usbcali.ecommerceusb.model.Order;
@@ -40,83 +43,87 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
     }
 
     @Override
-    public InventoryMovementResponse getInventoryMovementById(Integer id) throws Exception {
+    public InventoryMovementResponse getInventoryMovementById(Integer id) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
-        InventoryMovement im = inventoryMovementRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+        return inventoryMovementRepository.findById(id)
+                .map(InventoryMovementMapper::modelToResponse)
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Movimiento de inventario no encontrado con el id: %d", id)));
-        return InventoryMovementMapper.modelToResponse(im);
     }
 
     @Override
-    public InventoryMovementResponse createInventoryMovement(
-            CreateInventoryMovementRequest request) throws Exception {
-
+    public InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest request) {
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto CreateInventoryMovementRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto CreateInventoryMovementRequest no puede ser nulo.");
         }
         if (request.getProductId() == null || request.getProductId() <= 0) {
-            throw new Exception("El campo productId debe ser mayor a 0.");
+            throw new BadRequestException("El campo productId debe ser mayor a 0.");
         }
         if (Objects.isNull(request.getType()) || request.getType().isBlank()) {
-            throw new Exception("El campo type no puede ser nulo.");
+            throw new BadRequestException("El campo type no puede ser nulo.");
         }
         if (!VALID_TYPES.contains(request.getType())) {
-            throw new Exception("El campo type debe ser uno de: " + VALID_TYPES);
+            throw new BadRequestException("El campo type debe ser uno de: " + VALID_TYPES);
         }
         if (request.getQty() == null || request.getQty() <= 0) {
-            throw new Exception("El campo qty debe ser mayor a 0.");
+            throw new BadRequestException("El campo qty debe ser mayor a 0.");
         }
-
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new Exception("Producto no encontrado"));
-
-        // order es opcional
+                .orElseThrow(() -> new NotFoundException("Producto no encontrado"));
         Order order = null;
         if (request.getOrderId() != null) {
-            if (request.getOrderId() <= 0) throw new Exception("El campo orderId debe ser mayor a 0.");
+            if (request.getOrderId() <= 0) {
+                throw new BadRequestException("El campo orderId debe ser mayor a 0.");
+            }
             order = orderRepository.findById(request.getOrderId())
-                    .orElseThrow(() -> new Exception("Orden no encontrada"));
+                    .orElseThrow(() -> new NotFoundException("Orden no encontrada"));
         }
-
-        InventoryMovement im = InventoryMovementMapper.createRequestToModel(request, product, order);
-        im = inventoryMovementRepository.save(im);
-        return InventoryMovementMapper.modelToResponse(im);
+        try {
+            InventoryMovement im = InventoryMovementMapper.createRequestToModel(request, product, order);
+            im = inventoryMovementRepository.save(im);
+            return InventoryMovementMapper.modelToResponse(im);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al guardar el movimiento de inventario: " + e.getMessage());
+        }
     }
+
     @Override
-    public InventoryMovementResponse updateInventoryMovement(
-            Integer id, UpdateInventoryMovementRequest request) throws Exception {
+    public InventoryMovementResponse updateInventoryMovement(Integer id, UpdateInventoryMovementRequest request) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
+            throw new BadRequestException("Debe ingresar el id para actualizar");
         }
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto UpdateInventoryMovementRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto UpdateInventoryMovementRequest no puede ser nulo.");
         }
         if (request.getQty() == null || request.getQty() <= 0) {
-            throw new Exception("El campo qty debe ser mayor a 0.");
+            throw new BadRequestException("El campo qty debe ser mayor a 0.");
         }
-
         InventoryMovement im = inventoryMovementRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Movimiento de inventario no encontrado con el id: %d", id)));
-
-        im.setQty(request.getQty());
-
-        im = inventoryMovementRepository.save(im);
-        return InventoryMovementMapper.modelToResponse(im);
-    }
-    @Override
-    public void deleteInventoryMovement(Integer id) throws Exception {
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para eliminar");
+        try {
+            im.setQty(request.getQty());
+            im = inventoryMovementRepository.save(im);
+            return InventoryMovementMapper.modelToResponse(im);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al actualizar el movimiento de inventario: " + e.getMessage());
         }
-        InventoryMovement inventoryMovement = inventoryMovementRepository.findById(id)
-                .orElseThrow(() -> new Exception(
-                        String.format("Movimiento de inventario no encontrado con el id: %d", id)));
-
-        inventoryMovementRepository.delete(inventoryMovement);
     }
 
+    @Override
+    public void deleteInventoryMovement(Integer id) {
+        if (id == null || id <= 0) {
+            throw new BadRequestException("Debe ingresar el id para eliminar");
+        }
+        InventoryMovement im = inventoryMovementRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Movimiento de inventario no encontrado con el id: %d", id)));
+        try {
+            inventoryMovementRepository.delete(im);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al eliminar el movimiento de inventario: " + e.getMessage());
+        }
+    }
 }

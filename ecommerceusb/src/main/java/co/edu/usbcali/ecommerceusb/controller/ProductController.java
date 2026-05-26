@@ -23,22 +23,24 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<ProductResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(productService.getProductById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) throws Exception {
+    public ResponseEntity<ProductResponse> create(@RequestBody CreateProductRequest request) {
         return new ResponseEntity<>(productService.createProduct(request), HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(
+    public ResponseEntity<ProductResponse> update(
             @PathVariable Integer id,
-            @RequestBody CreateProductRequest request) throws Exception {
+            @RequestBody CreateProductRequest request) {
         return new ResponseEntity<>(productService.updateProduct(id, request), HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         productService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

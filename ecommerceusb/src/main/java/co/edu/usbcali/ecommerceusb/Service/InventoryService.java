@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface InventoryService {
     List<InventoryResponse> getInventories();
-    InventoryResponse getInventoryById(Integer id) throws Exception;
-    InventoryResponse createInventory(CreateInventoryRequest request) throws Exception;
-    InventoryResponse updateInventory(Integer id, CreateInventoryRequest request) throws Exception;
-    void deleteInventory(Integer id) throws Exception;
+    InventoryResponse getInventoryById(Integer id);
+    InventoryResponse createInventory(CreateInventoryRequest request);
+    InventoryResponse updateInventory(Integer id, CreateInventoryRequest request);
+    void deleteInventory(Integer id);
 }

@@ -23,22 +23,24 @@ public class InventoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InventoryResponse> getById(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<InventoryResponse> getById(@PathVariable Integer id) {
         return new ResponseEntity<>(inventoryService.getInventoryById(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<InventoryResponse> create(@RequestBody CreateInventoryRequest request) throws Exception {
+    public ResponseEntity<InventoryResponse> create(@RequestBody CreateInventoryRequest request) {
         return new ResponseEntity<>(inventoryService.createInventory(request), HttpStatus.CREATED);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<InventoryResponse> updateInventory(
+    public ResponseEntity<InventoryResponse> update(
             @PathVariable Integer id,
-            @RequestBody CreateInventoryRequest request) throws Exception {
+            @RequestBody CreateInventoryRequest request) {
         return new ResponseEntity<>(inventoryService.updateInventory(id, request), HttpStatus.OK);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         inventoryService.deleteInventory(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

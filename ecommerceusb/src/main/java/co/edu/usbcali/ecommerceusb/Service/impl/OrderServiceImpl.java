@@ -4,6 +4,9 @@ import co.edu.usbcali.ecommerceusb.Service.OrderService;
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderRequest;
 import co.edu.usbcali.ecommerceusb.dto.OrderResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateOrderRequest;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.InternalServerErrorException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.OrderMapper;
 import co.edu.usbcali.ecommerceusb.model.Order;
 import co.edu.usbcali.ecommerceusb.model.User;
@@ -32,83 +35,87 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponse getOrderById(Integer id) throws Exception {
+    public OrderResponse getOrderById(Integer id) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
+            throw new BadRequestException("Debe ingresar el id para buscar");
         }
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+        return orderRepository.findById(id)
+                .map(OrderMapper::modelToOrderResponse)
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Orden no encontrada con el id: %d", id)));
-        return OrderMapper.modelToOrderResponse(order);
     }
 
     @Override
-    public OrderResponse createOrder(CreateOrderRequest request) throws Exception {
+    public OrderResponse createOrder(CreateOrderRequest request) {
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto CreateOrderRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto CreateOrderRequest no puede ser nulo.");
         }
         if (request.getUserId() == null || request.getUserId() <= 0) {
-            throw new Exception("El campo userId debe ser mayor a 0.");
+            throw new BadRequestException("El campo userId debe ser mayor a 0.");
         }
         if (Objects.isNull(request.getTotalAmount()) || request.getTotalAmount().doubleValue() < 0) {
-            throw new Exception("El campo totalAmount no puede ser negativo.");
+            throw new BadRequestException("El campo totalAmount no puede ser negativo.");
         }
         if (Objects.isNull(request.getCurrency()) || request.getCurrency().isBlank()) {
-            throw new Exception("El campo currency no puede ser nulo.");
+            throw new BadRequestException("El campo currency no puede ser nulo.");
         }
-
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new Exception("Usuario no encontrado"));
-
-        Order order = OrderMapper.createOrderRequestToOrder(request, user);
-        order = orderRepository.save(order);
-        return OrderMapper.modelToOrderResponse(order);
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+        try {
+            Order order = OrderMapper.createOrderRequestToOrder(request, user);
+            order = orderRepository.save(order);
+            return OrderMapper.modelToOrderResponse(order);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al guardar la orden: " + e.getMessage());
+        }
     }
+
     @Override
-    public OrderResponse updateOrder(Integer id, UpdateOrderRequest request) throws Exception {
+    public OrderResponse updateOrder(Integer id, UpdateOrderRequest request) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para actualizar");
+            throw new BadRequestException("Debe ingresar el id para actualizar");
         }
         if (Objects.isNull(request)) {
-            throw new Exception("El objeto UpdateOrderRequest no puede ser nulo.");
+            throw new BadRequestException("El objeto UpdateOrderRequest no puede ser nulo.");
         }
         if (Objects.isNull(request.getStatus()) || request.getStatus().isBlank()) {
-            throw new Exception("El campo status no puede ser nulo.");
+            throw new BadRequestException("El campo status no puede ser nulo.");
         }
-
         Order.OrderStatus orderStatus;
         try {
             orderStatus = Order.OrderStatus.valueOf(request.getStatus());
         } catch (IllegalArgumentException e) {
-            throw new Exception("El status debe ser: CREATED, PAID o CANCELLED.");
+            throw new BadRequestException("El status debe ser: CREATED, PAID o CANCELLED.");
         }
-
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Orden no encontrada con el id: %d", id)));
-
-        order.setStatus(orderStatus);
-
-        // Registrar timestamps según el nuevo estado
-        if (orderStatus == Order.OrderStatus.PAID) {
-            order.setPaidAt(OffsetDateTime.now());
-        } else if (orderStatus == Order.OrderStatus.CANCELLED) {
-            order.setCancelledAt(OffsetDateTime.now());
+        try {
+            order.setStatus(orderStatus);
+            if (orderStatus == Order.OrderStatus.PAID) {
+                order.setPaidAt(OffsetDateTime.now());
+            } else if (orderStatus == Order.OrderStatus.CANCELLED) {
+                order.setCancelledAt(OffsetDateTime.now());
+            }
+            order = orderRepository.save(order);
+            return OrderMapper.modelToOrderResponse(order);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al actualizar la orden: " + e.getMessage());
         }
-
-        order = orderRepository.save(order);
-        return OrderMapper.modelToOrderResponse(order);
     }
+
     @Override
-    public void deleteOrder(Integer id) throws Exception {
+    public void deleteOrder(Integer id) {
         if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para eliminar");
+            throw new BadRequestException("Debe ingresar el id para eliminar");
         }
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new Exception(
+                .orElseThrow(() -> new NotFoundException(
                         String.format("Orden no encontrada con el id: %d", id)));
-
-        orderRepository.delete(order);
+        try {
+            orderRepository.delete(order);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error al eliminar la orden: " + e.getMessage());
+        }
     }
-
 }

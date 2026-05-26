@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface OrderItemService {
     List<OrderItemResponse> getOrderItems();
-    OrderItemResponse getOrderItemById(Integer id) throws Exception;
-    OrderItemResponse createOrderItem(CreateOrderItemRequest request) throws Exception;
-    OrderItemResponse updateOrderItem(Integer id, UpdateOrderItemRequest request) throws Exception;
-    void deleteOrderItem(Integer id) throws Exception;
+    OrderItemResponse getOrderItemById(Integer id);
+    OrderItemResponse createOrderItem(CreateOrderItemRequest request);
+    OrderItemResponse updateOrderItem(Integer id, UpdateOrderItemRequest request);
+    void deleteOrderItem(Integer id);
 }
